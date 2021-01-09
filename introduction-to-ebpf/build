@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+for f in *.svg; do
+  filename="${f%.svg}"
+  inkscape "${f}" --export-area-page --batch-process --export-type=pdf --export-filename="${filename}.pdf"
+done
+
+readonly PAGES=("welcome.pdf")
+readonly OUT=master.pdf
+pdfunite "${PAGES[@]/#/}" "${OUT}"
