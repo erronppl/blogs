@@ -7,6 +7,6 @@ for f in *.svg; do
   inkscape "${f}" --export-area-page --batch-process --export-type=pdf --export-filename="${filename}.pdf"
 done
 
-readonly PAGES=("welcome.pdf" "history.pdf" "analogy-js.pdf")
+readonly PAGES=("welcome.pdf" "history.pdf" "analogy-js.pdf" "analogy-ebpf.pdf")
 readonly OUT=master.pdf
 pdfunite "${PAGES[@]/#/}" "${OUT}"
