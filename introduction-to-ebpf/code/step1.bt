@@ -1,0 +1,28 @@
+#!/usr/bin/bpftrace
+
+/**
+ Print every app names bpftrace captures
+
+ The application fails because bpftrace captures its own output.
+ Redirecting the output to a file mitigates this issue.
+ */
+
+tracepoint:syscalls:sys_enter_write 
+{
+  printf("%s\n", comm);
+}
+
+/** TERMINAL 1
+# ./step1.bt > log.txt
+# head log.txt 
+Attaching 1 probe...
+snapd
+step1.bt
+step1.bt
+step1.bt
+step1.bt
+step1.bt
+step1.bt
+step1.bt
+step1.bt
+*/
