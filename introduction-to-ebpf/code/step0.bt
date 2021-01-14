@@ -1,0 +1,14 @@
+#!/usr/bin/bpftrace
+
+/**
+ Faithful to the tradition, the first app prints Hello World!
+ */
+
+BEGIN { printf("Hello World"); }
+
+/** TERMINAL 1
+# ./step0.bt > log.txt
+# head log.txt 
+Attaching 1 probe...
+Hello World
+*/
