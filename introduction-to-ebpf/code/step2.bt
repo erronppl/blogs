@@ -1,0 +1,28 @@
+#!/usr/bin/bpftrace
+
+/**
+ Print every app names bpftrace captures except itself.
+
+ Introduce bpftrace filter to exclude bpftrace output from capture
+ */
+
+tracepoint:syscalls:sys_enter_write 
+/ comm != "bpftrace" / 
+{
+  printf("%s\n", comm);
+}
+
+/** TERMINAL 1:
+# ./step2.bt > log.txt
+# head log.txt 
+Attaching 1 probe...
+sshd
+bash
+sshd
+sshd
+bash
+sshd
+sshd
+bash
+sshd
+*/
