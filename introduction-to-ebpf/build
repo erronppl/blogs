@@ -2,11 +2,23 @@
 
 set -o errexit
 
+# Convert code to PDF
+for i in $(seq 0 6)
+do
+  # Format bpftrace code as bpftrace code block ```javascript \n code \n ```
+  # JavaScript gives the "best" result given bpftrace uses /**/ for comments
+  sed '1i```javascript' "code/step${i}.bt" | sed '$a```' | pandoc -o "step${i}.pdf"
+done
+
+# Convert SVG to PDF
 for f in *.svg; do
   filename="${f%.svg}"
   inkscape "${f}" --export-area-page --batch-process --export-type=pdf --export-filename="${filename}.pdf"
 done
 
-readonly PAGES=("welcome.pdf" "history.pdf" "analogy-js.pdf" "analogy-ebpf.pdf" "probes.pdf" "benefits.pdf" "safety.pdf" "performance.pdf" "probes.pdf")
+# Merge all pages together and prouce a single final PDF
+readonly PAGES=("welcome.pdf" "history.pdf" "analogy-js.pdf" "analogy-ebpf.pdf" "probes.pdf" 
+                "step0.pdf" "step1.pdf" "step2.pdf" "step3.pdf" "step4.pdf" "step5.pdf" "step6.pdf"
+                "benefits.pdf" "safety.pdf" "performance.pdf" "probes.pdf")
 readonly OUT=master.pdf
 pdfunite "${PAGES[@]/#/}" "${OUT}"
