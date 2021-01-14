@@ -1,0 +1,29 @@
+#!/usr/bin/bpftrace
+
+/*
+ Print evey app names bpftrace captures except itself and unneeded apps
+
+ Introduce bptrace variable @me to exclude itself by pid
+ */
+
+BEGIN { @me = pid }
+
+tracepoint:syscalls:sys_enter_write 
+/ pid != @me && comm != "sshd" && comm != "bash" / 
+{
+  printf("%s\n", comm);
+}
+
+END { clear(@me) }
+
+/** TERMINAL 1
+# bpftrace step3.bt > log.txt 
+# head log.txt 
+Attaching 1 probe...
+python3
+*/
+
+/** TERMINAL 2
+# python3 -c 'print("hello from python")'
+hello from python
+*/
