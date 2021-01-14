@@ -1,0 +1,34 @@
+#!/usr/bin/bpftrace
+
+/**
+ Print every apps stdout bpftrace captures except itself and unneeded apps
+ 
+ Introduce strace, tracepoint argument and tracepoint signature.
+ 1) Run $(strace echo "foo") to know which system call to listen on;
+ 2) Run $(bpftrace -l 'tracepoint:syscalls:*' | grep 'write') to pinpoint the
+    exact call you need;
+ 3) Run $(bpftrace -lv tracepoint:syscalls:sys_enter_write) to show the
+    tracepoint signature and arguments.
+ */
+
+BEGIN { @me = pid }
+
+tracepoint:syscalls:sys_enter_write 
+/ pid != @me && comm != "sshd" && comm != "bash" / 
+{
+  printf("%d %s\n", args->count, str(args->buf, args->count));
+}
+
+END { clear(@me) }
+
+/** TERMINAL 1
+# bpftrace step4.bt > log.txt 
+# head log.txt 
+Attaching 1 probe...
+18 hello from python
+*/
+
+/** TERMINAL 2
+# python3 -c 'print("hello from python")'
+hello from python
+*/
