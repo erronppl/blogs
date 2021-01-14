@@ -1,0 +1,61 @@
+#!/usr/bin/bpftrace
+
+/**
+ Print every app stdout size as an histogram.
+
+ Introduce bpftrace histogram.
+ */
+
+BEGIN { @me = pid }
+
+tracepoint:syscalls:sys_enter_write
+/ pid != @me && comm != "sshd" /
+{ @[comm] = hist(args->count); }
+
+END { clear(@me) }
+
+/** TERMINAL 1
+# bpftrace step6.bt > log.txt 
+# cat log.txt 
+Attaching 3 probes...
+
+
+@[bash]: 
+[1]                    2 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                  |
+[2, 4)                 0 |                                                    |
+[4, 8)                 0 |                                                    |
+[8, 16)                0 |                                                    |
+[16, 32)               0 |                                                    |
+[32, 64)               2 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                  |
+[64, 128)              3 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+
+@[python3]: 
+[1]                    1 |@@@@@@                                              |
+[2, 4)                 2 |@@@@@@@@@@@@@                                       |
+[4, 8)                 4 |@@@@@@@@@@@@@@@@@@@@@@@@@@                          |
+[8, 16)                8 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+[16, 32)               1 |@@@@@@                                              |
+*/
+
+/** TERMINAL 2
+echo 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+*/
+
+/** TERMINAL 3
+# python3 -c '[print("A" * i) for i in range(16)]'
+A
+AA
+AAA
+AAAA
+AAAAA
+AAAAAA
+AAAAAAA
+AAAAAAAA
+AAAAAAAAA
+AAAAAAAAAA
+AAAAAAAAAAA
+AAAAAAAAAAAA
+AAAAAAAAAAAAA
+AAAAAAAAAAAAAA
+AAAAAAAAAAAAAAA
+*/
